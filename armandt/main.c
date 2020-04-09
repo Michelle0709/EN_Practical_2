@@ -11,14 +11,26 @@ int main() {
 //    printf("%c\n", a);
 
     struct CBC c;
-    c.pSize = 11;
-    c.blockSize = 3;
-    c.cSize = 12;
 
-    unsigned char text1[12];
-    unsigned char k[3] = {'b', 'b', 'b'};
-    unsigned char iv[3] = {'a', 'a', 'a'};
-    unsigned char text[11] = "abcdefghijk";
+    c.pSize = 30;
+    c.blockSize = 16;
+    c.cSize = 32;
+    unsigned char text1[c.pSize + 1];
+    unsigned char k[c.blockSize + 1];
+    unsigned char iv[c.blockSize + 1];
+    unsigned char text[c.cSize + 1];
+
+    for (int a = 0; a < c.pSize; a++){
+        text[a] = a;    //fill the plaintext with just numbers.
+        text1[a] = 0;   //set the cipher text to zeros
+
+        if (a < c.blockSize){
+            k[a] = 'a';
+            iv[a] = 'b';
+        }   //fill the key and IV
+    }
+
+    text1[c.cSize] = text[c.pSize] = '\0';      //append terminator
 
     c.plaintext = text;
     c.ciphertext = text1;
@@ -28,7 +40,7 @@ int main() {
     encryptCBC(&c, 0);
 
     printf("CBC encryption: \t");
-    for (int a = 0; a < 12; a++){
+    for (int a = 0; a < c.cSize; a++){
         printf("%x ", c.ciphertext[a]);
     }
     printf("\n\n");
@@ -36,10 +48,12 @@ int main() {
     decryptCBC(&c, 0);
 
     printf("CBC decryption: \t");
-    for (int a = 0; a < 12; a++){
-        printf("%c ", c.plaintext[a]);
+    for (int a = 0; a < c.cSize; a++){
+        printf("%x ", c.plaintext[a]);
     }
     printf("\n\n");
+
+    return 0;
 
 //    unsigned char shiftRegister[5] = {'a', 'b', 'c', 'd', 'e'};
 //    unsigned char newBytes[2] = {'f', 'g'};
@@ -112,6 +126,7 @@ int main() {
         expanded_key_size = 240;
     }
 
+    //Armandt added this when he moves the AES functions to their own file
     set_key_length(key_length);
     set_expanded_key_size(expanded_key_size);
     set_number_of_rounds(number_of_rounds);

@@ -2,8 +2,9 @@
 // Created by fouri on 2020/03/27.
 //
 
-#include "armandt.h"
 #include <stdio.h>
+#include <string.h>
+#include "armandt.h"
 #include "michelle.h"
 
 
@@ -50,7 +51,9 @@ void encryptCBC(struct CBC *c, int round){
 
         printf("\n");
 
-        //call AES function
+        //call AES function on the temp array
+        set_key_length(blockSize * 8);  //pass in the size of the key in bits
+
         printf("AES Output block: \t");
         for (int a = 0; a < blockSize; a++){
             temp[a] = temp[a] + 1;
@@ -61,8 +64,8 @@ void encryptCBC(struct CBC *c, int round){
         printf("New init vector: \t");
         for (int a = 0; a < blockSize; a++){
 //            (*c).iv[a] = temp[a];
-//            printf("%x ", (*c).iv[a]);
             (*c).ciphertext[a + blockSize * round] = temp[a];
+            printf("%x ", temp[a]);
         }
         printf("\n\n");
 

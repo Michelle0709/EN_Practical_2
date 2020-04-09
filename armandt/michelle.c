@@ -22,6 +22,18 @@ void set_expanded_key_size(int s){
 
 void set_key_length(int l){
     key_length = l;
+    if(key_length == 128)    {
+        number_of_rounds = 9;
+        expanded_key_size = 176;
+    }
+    else if (key_length == 192) {
+        number_of_rounds = 11;
+        expanded_key_size = 208;
+    }
+    else if (key_length == 256) {
+        number_of_rounds = 13;
+        expanded_key_size = 240;
+    }
 }
 
 int s_box[256] =
@@ -262,6 +274,7 @@ void sub_bytes(unsigned char* state)
     for(int i = 0; i < 16; i++)
         state[i] = s_box[state[i]];
 }
+
 void inverse_sub_bytes(unsigned char* state)
 {
     for(int i = 0; i < 16; i++)
@@ -388,6 +401,7 @@ void add_round_key(unsigned char* state, unsigned char* round_key)
     for(int i = 0; i < 16; i++)
         state[i] ^= round_key[i];
 }
+
 
 void AES_encrypt(unsigned char* message, unsigned char* key)
 {
