@@ -25,7 +25,7 @@ void encryptCBC(struct CBC *c, int round){
             i++;
         }   //first, copy chars from p to temp without going beyond the scope of p
         while(j < blockSize){
-            temp[j] = '0';
+            temp[j] = 0;
             j++;
         }   //pad with zeros if necessary
 
@@ -129,7 +129,7 @@ void encryptCFB(struct CFB *c, int round){
     } else {
         printf("Plaintext block: \t");
         for (int a = 0 + round * blockSize; a < round * blockSize + blockSize; a++){
-            printf("%c ", (*c).plaintext[a]);
+            printf("%x ", (*c).plaintext[a]);
         }
         printf("\n");
 
@@ -152,9 +152,13 @@ void encryptCFB(struct CFB *c, int round){
         }   //the first [blockSize] bytes of temp now contains the new block of ciphertext. And ciphertext has the new
             //data in it as well
         printArr(temp, blockSize, 'x');
+//        printf("Ciphertext: \t\t");
+//        printArr((*c).ciphertext, pSize, 'x');
 
         //Step 3: Shift the ciphertext into the shift register before starting the next round.
         shiftBytesIn((*c).shiftRegister, shiftRegSize, temp, blockSize);
+        printf("New shiftreg: \t\t");
+        printArr((*c).shiftRegister, shiftRegSize, 'x');
         printf("\n");
         encryptCFB(c, ++round);
 
@@ -172,6 +176,12 @@ void decryptCFB(struct CFB *c, int round){
         if (round == 0){
             printf("Init Vector: \t\t");
             printArr((*c).iv, shiftRegSize, 'x');
+            for (int a = 0; a < shiftRegSize; a++){
+                (*c).shiftRegister[a] = (*c).iv[a];
+            }   //the shift register should begin the same as the IV
+        } else {
+            printf("Shift Register: \t");
+            printArr((*c).shiftRegister, shiftRegSize, 'x');
         }
 
         //step 1: encrypt the IV/Shift Register using the provided Key, K
@@ -179,7 +189,7 @@ void decryptCFB(struct CFB *c, int round){
         if (round == 0){
             for (int a = 0; a < shiftRegSize; a++){
                 temp[a] = (*c).iv[a];
-            }   //copy the shift register into a temp array
+            }   //copy the IV into a temp array
         } else {
             for (int a = 0; a < shiftRegSize; a++){
                 temp[a] = (*c).shiftRegister[a];
@@ -202,7 +212,7 @@ void decryptCFB(struct CFB *c, int round){
         //step 3: shift ciphertext block into shiftreg before running next step
         for (int a = 0; a < blockSize; a++){
             temp[a] = (*c).ciphertext[a + b];
-        }   //copy ciphertext block into temp array
+        }   //copy ciphertext block into temp array (just so I can use the shiftBytesIn function more easily)
 
         shiftBytesIn((*c).shiftRegister, shiftRegSize, temp, blockSize);
         printf("\n");

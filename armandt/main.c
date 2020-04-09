@@ -39,21 +39,30 @@ int main() {
 
     encryptCBC(&c, 0);
 
-    printf("CBC encryption: \t");
+    printf("CBC encryption: \n");
     for (int a = 0; a < c.cSize; a++){
         printf("%x ", c.ciphertext[a]);
+        if ((a +1) % 8 == 0){
+            printf("\n");
+        }
     }
     printf("\n\n");
 
     decryptCBC(&c, 0);
 
-    printf("CBC decryption: \t");
+    printf("CBC decryption: \n");
     for (int a = 0; a < c.cSize; a++){
         printf("%x ", c.plaintext[a]);
+        if (c.plaintext[a] < 16){
+            printf(" ");
+        }
+        if ((a +1) % 8 == 0){
+            printf("\n");
+        }
     }
     printf("\n\n");
 
-    return 0;
+//    return 0;
 
 //    unsigned char shiftRegister[5] = {'a', 'b', 'c', 'd', 'e'};
 //    unsigned char newBytes[2] = {'f', 'g'};
@@ -68,34 +77,75 @@ int main() {
 
     printf("\n===============CFB SECTION===============\n");
 
-    unsigned char cfbPlainText[16] = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p'};
-    unsigned char cfbInitVector[8] = {'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a'};
-    unsigned char cfbCipherText[16];
-    unsigned char cfbShiftReg[8];
-
-    for (int a = 0; a < 8; a++){
-        cfbShiftReg[a] = cfbInitVector[a];
-    }
+//    unsigned char cfbPlainText[16] = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p'};
+//    unsigned char cfbInitVector[8] = {'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a'};
+//    unsigned char cfbCipherText[16];
+//    unsigned char cfbShiftReg[8];
+//
+//    for (int a = 0; a < 8; a++){
+//        cfbShiftReg[a] = cfbInitVector[a];
+//    }
+//
+//    struct CFB cfb;
+//    cfb.plaintext = cfbPlainText;
+//    cfb.ciphertext = cfbCipherText;
+//    cfb.iv = cfbInitVector;
+//    cfb.shiftRegister = cfbShiftReg;
+//    cfb.pSize = 16;
+//    cfb.shiftRegSize = 8;
+//    cfb.blockSize = 4;
+//
+//    encryptCFB(&cfb, 0);
+//
+//    printf("CFB encryption: \t");
+//    printArr(cfb.ciphertext, 16, 'x');
+//    printf("\n");
+//
+//    decryptCFB(&cfb, 0);
+//    printf("CFB decryption: \t");
+//    printArr(cfb.plaintext, 16, 'c');
 
     struct CFB cfb;
+    cfb.pSize = 32;
+    cfb.shiftRegSize = 20;
+    cfb.blockSize = 8;
+
+    unsigned char cfbPlainText[cfb.pSize + 1];
+    unsigned char cfbInitVector[cfb.shiftRegSize];
+    unsigned char cfbCipherText[cfb.pSize + 1];
+    unsigned char cfbShiftReg[cfb.shiftRegSize];
+
+    for (int a = 0; a < cfb.shiftRegSize; a++){
+        cfbShiftReg[a] = cfbInitVector[a] = 0;
+    }
+
+    for (int a = 0; a < cfb.pSize; a++){
+        cfbPlainText[a] = a;
+        cfbShiftReg[a] = 0;
+        cfbCipherText[a] = 0;
+    }
+
+
+
+    cfbPlainText[cfb.pSize] = '\0';
+    cfbShiftReg[cfb.pSize] = '\0';
+
     cfb.plaintext = cfbPlainText;
     cfb.ciphertext = cfbCipherText;
     cfb.iv = cfbInitVector;
     cfb.shiftRegister = cfbShiftReg;
-    cfb.pSize = 16;
-    cfb.shiftRegSize = 8;
-    cfb.blockSize = 4;
 
     encryptCFB(&cfb, 0);
 
     printf("CFB encryption: \t");
-    printArr(cfb.ciphertext, 16, 'x');
+    printArr(cfb.ciphertext, cfb.pSize, 'x');
     printf("\n");
 
     decryptCFB(&cfb, 0);
     printf("CFB decryption: \t");
-    printArr(cfb.plaintext, 16, 'c');
+    printArr(cfb.plaintext, cfb.pSize, 'x');
 
+//    return 0;
 
 
     printf("\n\n==================AES Section==================\n\n");
@@ -219,7 +269,8 @@ int main() {
     }
     printf("\nDecrypted message\n");
     print_hex(decrypted_message, 32);
-    printf("%s\n", decrypted_message+10);
+    printf("%s\n", decrypted_message + 10);
+    printArr(decrypted_message, 31, 'c');
 
 
 
