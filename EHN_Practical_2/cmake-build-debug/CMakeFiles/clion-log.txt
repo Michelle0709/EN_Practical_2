@@ -1,5 +1,5 @@
-/opt/clion-2019.3.5/bin/cmake/linux/bin/cmake -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - Unix Makefiles" /home/michelle/CLionProjects/EHN_Practical_2
--- The C compiler identification is GNU 7.5.0
+/home/armandt/Programs/clion-2019.3.4/bin/cmake/linux/bin/cmake -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - Unix Makefiles" /home/armandt/Documents/EN_Practical_2/EHN_Practical_2
+-- The C compiler identification is GNU 7.4.0
 -- Check for working C compiler: /usr/bin/cc
 -- Check for working C compiler: /usr/bin/cc -- works
 -- Detecting C compiler ABI info
@@ -8,4 +8,4 @@
 -- Detecting C compile features - done
 -- Configuring done
 -- Generating done
--- Build files have been written to: /home/michelle/CLionProjects/EHN_Practical_2/cmake-build-debug
+-- Build files have been written to: /home/armandt/Documents/EN_Practical_2/EHN_Practical_2/cmake-build-debug

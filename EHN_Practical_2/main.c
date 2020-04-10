@@ -208,7 +208,325 @@ void key_expansion_core(unsigned char* in, unsigned char i)
 }
 
 void key_expansion(unsigned char* input_key, unsigned char* expanded_key)
+{void key_expansion_core(unsigned char* in, unsigned char i)
 {
+    //rotate left
+    unsigned char t = in[0];
+    in[0] = in[1];
+    in[1] = in[2];
+    in[2] = in[3];
+    in[3] = t;
+
+    //S-box on all four bytes
+    in[0] = s_box[in[0]];
+    in[1] = s_box[in[1]];
+    in[2] = s_box[in[2]];
+    in[3] = s_box[in[3]];
+
+    //RCon operation
+    in[0] ^= RCon[i];
+}
+
+void key_expansion(unsigned char* input_key, unsigned char* expanded_key)
+{
+    //The first 16 bytes of the expanded key are simply the encryption key that the user entered.
+    for(int i = 0; i < (key_length/8); i++)
+        expanded_key[i] = input_key[i];
+
+    //Variables
+    int bytes_generated = key_length/8;
+    int RCon_iteration = 1;
+    unsigned char temp[4];
+
+    while(bytes_generated < expanded_key_size)
+    {
+        // Assign previous four bytes in the expanded key to temp
+        for(int i = 0; i < 4; i++)
+            temp[i] = expanded_key[i + bytes_generated - 4];
+
+        //Send t to the core key scheduler along with the RCon value.
+        if(bytes_generated % 16 == 0)
+            key_expansion_core(temp, RCon_iteration++);
+
+        /*XOR the output of the core key scheduler with a four-byte block 16 bytes before the
+        expanded key (i.e bytes 0-3). The result becomes the next 4 bytes of the expanded key.*/
+        for(unsigned char i = 0; i < 4; i++)
+        {
+            expanded_key[bytes_generated] = expanded_key[bytes_generated - 16] ^ temp[i];
+            bytes_generated++;
+
+        }
+
+    }
+
+}
+
+void sub_bytes(unsigned char* state)
+{
+    for(int i = 0; i < 16; i++)
+        state[i] = s_box[state[i]];
+}
+void inverse_sub_bytes(unsigned char* state)
+{
+    for(int i = 0; i < 16; i++)
+        state[i] = inverse_s_box[state[i]];
+}
+
+void shift_rows(unsigned char* state)
+{
+    unsigned char tmp[16];
+
+    tmp[0] = state[0];
+    tmp[1] = state[5];
+    tmp[2] = state[10];
+    tmp[3] = state[15];
+
+    tmp[4] = state[4];
+    tmp[5] = state[9];
+    tmp[6] = state[14];
+    tmp[7] = state[3];
+
+    tmp[8] = state[8];
+    tmp[9] = state[13];
+    tmp[10] = state[2];
+    tmp[11] = state[7];
+
+    tmp[12] = state[12];
+    tmp[13] = state[1];
+    tmp[14] = state[6];
+    tmp[15] = state[11];
+
+    for(int i = 0; i < 16; i++)
+        state[i] = tmp[i];
+}
+void inverse_shift_rows(unsigned char* state)
+{
+    unsigned char tmp[16];
+
+    tmp[0] = state[0];
+    tmp[5] = state[1];
+    tmp[10] = state[2];
+    tmp[15] = state[3];
+
+    tmp[4] = state[4];
+    tmp[9] = state[5];
+    tmp[14] = state[6];
+    tmp[3] = state[7];
+
+    tmp[8] = state[8];
+    tmp[13] = state[9];
+    tmp[2] = state[10];
+    tmp[7] = state[11];
+
+    tmp[12] = state[12];
+    tmp[1] = state[13];
+    tmp[6] = state[14];
+    tmp[11] = state[15];
+
+    for(int i = 0; i < 16; i++)
+        state[i] = tmp[i];
+}
+
+void mix_columns(unsigned char* state )
+{
+    unsigned char tmp[16];
+
+    tmp[0] = (unsigned char)(multiply_2[state[0]] ^ multiply_3[state[1]] ^ state[2] ^ state[3]);
+    tmp[1] = (unsigned char)(state[0] ^ multiply_2[state[1]] ^ multiply_3[state[2]] ^ state[3]);
+    tmp[2] = (unsigned char)(state[0] ^ state[1] ^ multiply_2[state[2]] ^ multiply_3[state[3]]);
+    tmp[3] = (unsigned char)(multiply_3[state[0]] ^ state[1] ^ state[2] ^ multiply_2[state[3]]);
+
+    tmp[4] = (unsigned char)(multiply_2[state[4]] ^ multiply_3[state[5]] ^ state[6] ^ state[7]);
+    tmp[5] = (unsigned char)(state[4] ^ multiply_2[state[5]] ^ multiply_3[state[6]] ^ state[7]);
+    tmp[6] = (unsigned char)(state[4] ^ state[5] ^ multiply_2[state[6]] ^ multiply_3[state[7]]);
+    tmp[7] = (unsigned char)(multiply_3[state[4]] ^ state[5] ^ state[6] ^ multiply_2[state[7]]);
+
+    tmp[8] = (unsigned char)(multiply_2[state[8]] ^ multiply_3[state[9]] ^ state[10] ^ state[11]);
+    tmp[9] = (unsigned char)(state[8] ^ multiply_2[state[9]] ^ multiply_3[state[10]] ^ state[11]);
+    tmp[10] = (unsigned char)(state[8] ^ state[9] ^ multiply_2[state[10]] ^ multiply_3[state[11]]);
+    tmp[11] = (unsigned char)(multiply_3[state[8]] ^ state[9] ^ state[10] ^ multiply_2[state[11]]);
+
+    tmp[12] = (unsigned char)(multiply_2[state[12]] ^ multiply_3[state[13]] ^ state[14] ^ state[15]);
+    tmp[13] = (unsigned char)(state[12] ^ multiply_2[state[13]] ^ multiply_3[state[14]] ^ state[15]);
+    tmp[14] = (unsigned char)(state[12] ^ state[13] ^ multiply_2[state[14]] ^ multiply_3[state[15]]);
+    tmp[15] = (unsigned char)(multiply_3[state[12]] ^ state[13] ^ state[14] ^ multiply_2[state[15]]);
+    tmp[16] = '\0';
+
+    for(int i = 0; i < 17; i++)
+        state[i] = tmp[i];
+
+}
+
+void inverse_mix_columns(unsigned char* state )
+{
+    unsigned char tmp[16];
+
+    tmp[0] = (unsigned char)(multiply_14[state[0]] ^ multiply_9[state[3]] ^ multiply_13[state[2]] ^ multiply_11[state[1]]);
+    tmp[1] = (unsigned char)(multiply_14[state[1]] ^ multiply_9[state[0]] ^ multiply_13[state[3]] ^ multiply_11[state[2]]);
+    tmp[2] = (unsigned char)(multiply_14[state[2]] ^ multiply_9[state[1]] ^ multiply_13[state[0]] ^ multiply_11[state[3]]);
+    tmp[3] = (unsigned char)(multiply_14[state[3]] ^ multiply_9[state[2]] ^ multiply_13[state[1]] ^ multiply_11[state[0]]);
+
+    tmp[4] = (unsigned char)(multiply_14[state[4]] ^ multiply_9[state[7]] ^ multiply_13[state[6]] ^ multiply_11[state[5]]);
+    tmp[5] = (unsigned char)(multiply_14[state[5]] ^ multiply_9[state[4]] ^ multiply_13[state[7]] ^ multiply_11[state[6]]);
+    tmp[6] = (unsigned char)(multiply_14[state[6]] ^ multiply_9[state[5]] ^ multiply_13[state[4]] ^ multiply_11[state[7]]);
+    tmp[7] = (unsigned char)(multiply_14[state[7]] ^ multiply_9[state[6]] ^ multiply_13[state[5]] ^ multiply_11[state[4]]);
+
+    tmp[8] =  (unsigned char)(multiply_14[state[8]]  ^ multiply_9[state[11]] ^ multiply_13[state[10]] ^ multiply_11[state[9]]);
+    tmp[9] =  (unsigned char)(multiply_14[state[9]]  ^ multiply_9[state[8]]  ^ multiply_13[state[11]] ^ multiply_11[state[10]]);
+    tmp[10] = (unsigned char)(multiply_14[state[10]] ^ multiply_9[state[9]]  ^ multiply_13[state[8]]  ^ multiply_11[state[11]]);
+    tmp[11] = (unsigned char)(multiply_14[state[11]] ^ multiply_9[state[10]] ^ multiply_13[state[9]]  ^ multiply_11[state[8]]);
+
+    tmp[12] = (unsigned char)(multiply_14[state[12]] ^ multiply_9[state[15]] ^ multiply_13[state[14]] ^ multiply_11[state[13]]);
+    tmp[13] = (unsigned char)(multiply_14[state[13]] ^ multiply_9[state[12]] ^ multiply_13[state[15]] ^ multiply_11[state[14]]);
+    tmp[14] = (unsigned char)(multiply_14[state[14]] ^ multiply_9[state[13]] ^ multiply_13[state[12]] ^ multiply_11[state[15]]);
+    tmp[15] = (unsigned char)(multiply_14[state[15]] ^ multiply_9[state[14]] ^ multiply_13[state[13]] ^ multiply_11[state[12]]);
+    tmp[16] = '\0';
+
+    for(int i = 0; i < 17; i++)
+        state[i] = tmp[i];
+
+}
+
+void add_round_key(unsigned char* state, unsigned char* round_key)
+{
+    for(int i = 0; i < 16; i++)
+        state[i] ^= round_key[i];
+}
+void AES_encrypt(unsigned char* message, unsigned char* key)
+{
+    unsigned char state[16];
+    for(int i = 0; i < 16; i++)
+        state[i] = message[i];
+
+   // int number_of_rounds = 9;
+
+
+    unsigned char expanded_key[expanded_key_size];
+    key_expansion(key, expanded_key);
+
+    //Initial round
+    add_round_key(state, key);
+
+    //Mixing rounds
+    for(int i = 0; i < number_of_rounds; i++)
+    {
+        sub_bytes(state);
+        shift_rows(state);
+        mix_columns(state);
+        add_round_key(state, expanded_key + (16 * (i+1)));
+    }
+
+    //Final round
+    sub_bytes(state);
+    shift_rows(state);
+    add_round_key(state, expanded_key + expanded_key_size-16);
+
+    for(int i = 0; i < 16; i++)
+        message[i] = state[i];
+    message[17]= '\0';
+
+
+}
+
+void AES_decrypt(unsigned char* message, unsigned char* key)
+{
+    unsigned char state[16];
+    for(int i = 0; i < 16; i++)
+        state[i] = message[i];
+
+    //int number_of_rounds = 9;
+
+    unsigned char expanded_key[expanded_key_size];
+    key_expansion(key, expanded_key);
+
+    //Initial round
+    add_round_key(state, expanded_key + expanded_key_size-16);
+
+
+    //Mixing rounds
+    for(int i = 0; i < number_of_rounds; i++)
+    {
+        inverse_shift_rows(state);
+        inverse_sub_bytes(state);
+        add_round_key(state, expanded_key + expanded_key_size-16-(16 * (i+1)));
+        inverse_mix_columns(state);
+
+    }
+
+    //Final round
+    inverse_shift_rows(state);
+    inverse_sub_bytes(state);
+    add_round_key(state, key);
+
+    for(int i = 0; i < 16; i++)
+        message[i] = state[i];
+    message[17]= '\0';
+
+}
+
+void print_hex(const char *string, int count)
+{
+    unsigned char *p = (unsigned char *) string;
+
+    for (int i=0; i < count; ++i) {
+        if (! (i % 16) && i)
+            printf("\n");
+
+        printf("%02x ", p[i]);
+    }
+    printf("\n\n");
+}
+void print_hex_block(const char *string)
+{
+    unsigned char *p = (unsigned char *) string;
+
+    for (int i=0; i < 4; ++i)
+    {
+        int x = 0;
+        for(int j = 0; j<4; j++)
+        {
+//            if (! (i % 16) && i)
+//                printf("\n");
+            x = j*4;
+
+            printf("%02x ", p[i+x]);
+        }
+        printf("\n");
+
+    }
+    printf("\n\n");
+}
+void test_functionality(unsigned char * input_string)
+{
+    printf("\n___________________________________________________\n");
+    unsigned char input[strlen(input_string)];
+    strncpy(input, input_string, strlen(input_string));
+    print_hex_block(input_string);
+
+    printf("\nMix Columns\n");
+    printf("___________________________________________________\n");
+
+    mix_columns(input_string);
+    print_hex_block(input_string);
+    printf("___________________________________________________\n");
+
+    printf("\nShift rows\n");
+    strncpy(input_string, input, strlen(input_string));
+    printf("___________________________________________________\n");
+    shift_rows(input_string);
+    print_hex_block(input_string);
+    printf("___________________________________________________\n");
+
+    printf("\nSub Bytes\n");
+    strncpy(input_string, input, strlen(input_string));
+    printf("___________________________________________________\n");
+    sub_bytes(input_string);
+    print_hex_block(input_string);
+    printf("___________________________________________________\n");
+
+
+
+}
     //The first 16 bytes of the expanded key are simply the encryption key that the user entered.
     for(int i = 0; i < (key_length/8); i++)
         expanded_key[i] = input_key[i];
@@ -566,7 +884,7 @@ int main()
     {
         unsigned char block_to_encrypt[17];
 
-        for(int j = 0; j < 17; j++)
+        for(int j = 0; j < 16; j++)
             block_to_encrypt[j] = padded_message[i+j];
 
         block_to_encrypt[16] = '\0';

@@ -108,7 +108,7 @@ int main() {
     struct CFB cfb;
     cfb.pSize = 32;
     cfb.shiftRegSize = 20;
-    cfb.blockSize = 8;
+    cfb.blockSize = 16;
 
     unsigned char cfbPlainText[cfb.pSize + 1];
     unsigned char cfbInitVector[cfb.shiftRegSize];
@@ -147,25 +147,90 @@ int main() {
 
 //    return 0;
 
+    printf("\n\nArmandt AES Section\n\n");
+//    unsigned char myMessage[] = "My name is Armandt and I'm trying to encrypt this message.";   //59 chars
+    unsigned char myMessage[] = "abcdefghijklmno";   //59 chars
+    unsigned char myKey[] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
+    int keyLength = 128;
+    int rounds = 9;
+    int expandedSize = 176;
+    set_key_length(128);
+
+    int myMessageLength = strlen(myMessage);
+    int paddedLength = myMessageLength;
+
+    if (paddedLength % 16 != 0){
+        paddedLength = (paddedLength / 16 + 1) * 16;
+    }
+
+    unsigned char paddedMessage[paddedLength + 1];
+    paddedMessage[paddedLength] = '\0';
+    for (int a = 0; a < paddedLength; a++){
+        if (a >= myMessageLength){
+            paddedMessage[a] = 0;
+        } else {
+            paddedMessage[a] = myMessage[a];
+        }
+    }
+
+    unsigned char encryptedMessage[paddedLength];
+
+    unsigned char blockToEncrypt[17];
+    for (int a = 0; a < 17; a++){
+        blockToEncrypt[a] = paddedMessage[a];
+    }
+
+    AES_encrypt(blockToEncrypt, myKey);
+
+    for (int a = 0; a< 16; a++){
+        encryptedMessage[a] = blockToEncrypt[a];
+    }
+
+    printArr(myMessage, 16, 'c');
+    printArr(encryptedMessage, 16, 'x');
+
+    unsigned char decryptedMessage[17];
+    decryptedMessage[16] = '\0';
+
+    for (int a = 0; a < 16; a++){
+        decryptedMessage[a] = encryptedMessage[a];
+    }
+
+    AES_decrypt(decryptedMessage, myKey);
+    printArr(decryptedMessage, 16, 'c');
+
+    printf("\n\n");
+    unsigned char * newArray = NULL;
+    newArray = pad_and_encrypt(myMessage, 128, myKey);
+    printArr(newArray, 16, 'x');
+
+    unsigned char dec[17];
+    dec[16] = '\0';
+//    AES_decrypt(newArray, myKey);
+    newArray = general_decrypt(newArray, 128, myKey);
+    printArr(newArray, 16, 'c');
+
+
+//    return 0;
 
     printf("\n\n==================AES Section==================\n\n");
 
-    printf("Enter the key length:\n");
-    printf("> ");
-    scanf("%d", &key_length); ///get the response from the user
-//    printf("%d\n", key_length);
-
     unsigned char message[]= "This is the message is a secret";
-//    printf("Enter the message to encrypt:\n");
-//    printf("> ");
-//    scanf("%s", &message);
-    unsigned char key[] =  {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 };
+    unsigned char key[] =  {1, 2, 3, 4, 6, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 1, 2, 3, 4, 6, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
     // unsigned char key[] =  {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
     //unsigned char key[] =  {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 1, 2, 3, 4, 5,  6,  7, 8 };
+    // unsigned char key[] =  {0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a,0x0b,0x0c,0x0d,0x0e,0x0f,
+    // 0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1a,0x1b,0x1c,0x1d,0x1e,0x1f };
+    //unsigned char key[] =  {0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x01, 0x02, 0x03, 0x04,
+    // 0x05, 0x06, 0x07, 0x08 , 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08 };
+    printf("Enter key length: ");
 
+    scanf("%d", &key_length); ///get the response from the user
+    printf("%d", key_length);
     if(key_length == 128)    {
         number_of_rounds = 9;
         expanded_key_size = 176;
+
     }
     else if (key_length == 192) {
         number_of_rounds = 11;
@@ -176,14 +241,10 @@ int main() {
         expanded_key_size = 240;
     }
 
-    //Armandt added this when he moves the AES functions to their own file
     set_key_length(key_length);
-    set_expanded_key_size(expanded_key_size);
-    set_number_of_rounds(number_of_rounds);
 
-//    Zero padding
+    //Zero padding
     int original_length = strlen(message);
-//    int original_length = 31;
     int length_of_padded_message = original_length;
 
     if(length_of_padded_message % 16 != 0)
@@ -201,8 +262,10 @@ int main() {
     padded_message[length_of_padded_message]='\0';// apparently very important :|
 
     unsigned char encrypted_message[length_of_padded_message];
-    //unsigned char expanded_key[expanded_key_size];
+    // unsigned char expanded_key[expanded_key_size];
     //key_expansion(key, expanded_key);
+
+
 
     //Encrypt padded message
     for(int i = 0; i < length_of_padded_message; i += 16)
@@ -213,21 +276,21 @@ int main() {
             block_to_encrypt[j] = padded_message[i+j];
 
         block_to_encrypt[16] = '\0';
-        // AES_encrypt(block_to_encrypt, key);
-
-//        for(int j = 0; j < 16; j++)
-//            encrypted_message[j+i] = block_to_encrypt[j];
-
-        //printf("%s",block_to_encrypt);
-        printf("\nblock_to_encrypt");
-        printf("*********************\n");
-        print_hex(block_to_encrypt, 16);
         AES_encrypt(block_to_encrypt, key);
-        printf("\nEncrypted block_to_encrypt");
-        printf("*********************\n");
-        print_hex(block_to_encrypt, 16);
+
         for(int j = 0; j < 16; j++)
             encrypted_message[j+i] = block_to_encrypt[j];
+
+        //printf("%s",block_to_encrypt);
+//        printf("\nblock_to_encrypt");
+//        printf("*********************\n");
+//        print_hex(block_to_encrypt, 16);
+//        AES_encrypt(block_to_encrypt, key);
+//        printf("\nEncrypted block_to_encrypt");
+//        printf("*********************\n");
+//        print_hex(block_to_encrypt, 16);
+//        for(int j = 0; j < 16; j++)
+//            encrypted_message[j+i] = block_to_encrypt[j];
 
     }
 
@@ -240,6 +303,7 @@ int main() {
 
     printf("\nMessage Hex: \n");
     print_hex(message, 32);
+
 
 
 
@@ -258,21 +322,14 @@ int main() {
         for(int j = 0; j < 16; j++)
             decrypted_message[j+i] = block_to_decrypt[j];
 
-//        printf("\nblock_to_decrypt\n");
-//        print_hex(block_to_decrypt, 16);
-//        AES_decrypt(block_to_decrypt, key);
-//
-//        printf("*********************\n");
-//        print_hex(block_to_decrypt, 32);
-
-
     }
     printf("\nDecrypted message\n");
     print_hex(decrypted_message, 32);
-    printf("%s\n", decrypted_message + 10);
-    printArr(decrypted_message, 31, 'c');
+    for(int i = 0; i < 32; i ++)
+        printf("%c", decrypted_message[i]);
 
-
+    unsigned char test[] = {0x74, 0x68, 0x69, 0x73, 0x20, 0x69, 0x73, 0x20, 0x61, 0x20, 0x74, 0x65, 0x73, 0x74, 0x2e, 0x2e};
+//    test_functionality(test);
 
     return 0;
 }

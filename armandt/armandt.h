@@ -70,4 +70,5 @@ void dummyDecryptionFunction(unsigned char* data, int size);
  */
 void printArr(unsigned char *arr, int size, char format);
 
+
 #endif //ARMANDT_ARMANDT_H

@@ -6,13 +6,13 @@
 
 #IncludeRegexTransform: 
 
-/home/michelle/CLionProjects/EHN_Practical_2/main.c
+/home/armandt/Documents/EN_Practical_2/EHN_Practical_2/main.c
 stdio.h
-/home/michelle/CLionProjects/EHN_Practical_2/stdio.h
+/home/armandt/Documents/EN_Practical_2/EHN_Practical_2/stdio.h
 math.h
-/home/michelle/CLionProjects/EHN_Practical_2/math.h
+/home/armandt/Documents/EN_Practical_2/EHN_Practical_2/math.h
 stdlib.h
-/home/michelle/CLionProjects/EHN_Practical_2/stdlib.h
+/home/armandt/Documents/EN_Practical_2/EHN_Practical_2/stdlib.h
 string.h
-/home/michelle/CLionProjects/EHN_Practical_2/string.h
+/home/armandt/Documents/EN_Practical_2/EHN_Practical_2/string.h
 
