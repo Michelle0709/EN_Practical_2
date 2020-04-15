@@ -505,7 +505,7 @@ void test_functionality(unsigned char *input_string)
 }
 
 
-unsigned char * pad_and_encrypt(unsigned char * message, int key_len, unsigned char * k){
+unsigned char* pad_and_encrypt(unsigned char * message, unsigned char * encrypted, int key_len, unsigned char * k){
     unsigned char original_message[strlen(message) + 1];    //make a copy of the message (maybe this helps)
     unsigned char key[key_len / 8];                       //make a copy of the key
     int original_message_len = strlen(message);         //get the length of the message
@@ -552,11 +552,13 @@ unsigned char * pad_and_encrypt(unsigned char * message, int key_len, unsigned c
             encrypted_message[j + a] = block_to_encrypt[j];
         }
     }
-    encrypted_message[padded_message_len] = '\0';
+    encrypted_message[padded_message_len] = '\0';   //very important for decryption
 
-//    for (int a = 0; a < padded_message_len; a++){
+    for (int a = 0; a < padded_message_len; a++){
 //        printf("%x ", encrypted_message[a]);
-//    }
+        encrypted[a] = encrypted_message[a];
+    }
+    encrypted[padded_message_len] = '\0';
 //    printf("\n");
 
     return encrypted_message;
@@ -564,16 +566,22 @@ unsigned char * pad_and_encrypt(unsigned char * message, int key_len, unsigned c
 
 unsigned char * general_decrypt(unsigned char * message, int key_len, unsigned char * k){
     int padded_message_len = strlen(message);
-    unsigned char temp[padded_message_len];        //the encrypted message should be the length of the padded original message 
+    unsigned char temp[padded_message_len + 1];        //the encrypted message should be the length of the padded original message
     unsigned char * decrypted_message = temp;
+    unsigned char message_copy[padded_message_len + 1];
+
+    for (int a = 0; a < padded_message_len; a++){
+        message_copy[a] = message[a];
+    }   //added this because C overwrites the contents of memory somewhere during the execution of this function
 
     for (int a = 0; a < padded_message_len; a += 16){
         unsigned char block_to_decrypt[17];
 
         for (int b = 0; b < 16; b++){
-            block_to_decrypt[b] = message[a + b];
+            block_to_decrypt[b] = message_copy[a + b];
         }
         block_to_decrypt[16] = '\0';
+
 
         AES_decrypt(block_to_decrypt, k);
 
@@ -581,6 +589,16 @@ unsigned char * general_decrypt(unsigned char * message, int key_len, unsigned c
             decrypted_message[b + a] = block_to_decrypt[b];
         }
     }
+
+    decrypted_message[padded_message_len] = '\0';
+
+    for (int a = 0; a < padded_message_len; a++){
+//        printf("%x ", decrypted_message[a]);
+        message[a] = decrypted_message[a];
+    }
+
+    message[padded_message_len] = '\0';
+//    printf("\n");
 
     return decrypted_message;
 }

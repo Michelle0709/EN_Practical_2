@@ -52,11 +52,12 @@ void set_expanded_key_size(int s);
  * arbitrarily-sized char array using AES_encrypt. This function will also
  * call the set_key_length function to initialise those variables.
  * @param message The char array that must be encrypted
+ * @param encrypted The array where the encrypted message is stored
  * @param key_length The length of the key in bits
  * @param key The key used for encryption
  * @return Returns an array containing the encrypted message
  */
-unsigned char* pad_and_encrypt(unsigned char * message, int key_length, unsigned char * key);
+unsigned char* pad_and_encrypt(unsigned char * message, unsigned char * encrypted, int key_length, unsigned char * key);
 
 /**
  * @brief Takes a longer encrypted message and decrypts it, returning an array containing the decrypted message

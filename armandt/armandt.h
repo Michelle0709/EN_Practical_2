@@ -12,6 +12,7 @@ struct CBC{
     int pSize;         //size of plaintext in BYTES = no. of array indexes
     int cSize;         //size of the ciphertext created in BYTES
     int blockSize;     //size of each block in BYTES
+    int keySize;       //size of the key in bits
     unsigned char* plaintext;   //array of chars
     unsigned char* key;
     unsigned char* ciphertext;
@@ -26,6 +27,7 @@ struct CFB{
     int pSize;          //size of the plaintext message/ciphertext
     int shiftRegSize;   //bytes in the IV/Shift Register
     int blockSize;      //number of bytes processed per round
+    int keySize;        //size of the key in bits
     unsigned char* plaintext;
     unsigned char* ciphertext;
     unsigned char* iv;  //init vector. THis does not get changed.
