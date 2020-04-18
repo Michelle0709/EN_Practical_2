@@ -10,11 +10,11 @@ int main() {
 //    unsigned char a = 0x45;
 //    printf("%c\n", a);
 
-    int cbc_section = 0;
-    int cfb_section = 0;
-    int armandt_aes = 0;
+    int cbc_section = 1;
+    int cfb_section = 1;
+    int armandt_aes = 1;
     int michelle_aes = 0;
-    int files_test = 1;
+    int files_test = 0;
 
     if (cbc_section == 1){
         printf("\n\n=================CBC SECTION=================\n\n");
@@ -142,6 +142,7 @@ int main() {
         cfb.ciphertext = cfbCipherText;
         cfb.iv = cfbInitVector;
         cfb.shiftRegister = cfbShiftReg;
+        cfb.key = cfbKey;
 
         encryptCFB(&cfb, 0);
 
