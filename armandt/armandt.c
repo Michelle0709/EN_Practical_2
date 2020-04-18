@@ -61,7 +61,7 @@ void encryptCBC(struct CBC *c, int round){
 //        hello[16] = '\0';
 //        printf("Hello: \t");
 //        printArr(hello, 16, 'x');
-        pad_and_encrypt(temp, encrypted, (*c).keySize, (*c).key);
+        pad_and_encrypt(temp, encrypted, blockSize, (*c).keySize, (*c).key);
 
         printf("AES Output block: \t");
         for (int a = 0; a < blockSize; a++){
@@ -108,7 +108,7 @@ void decryptCBC(struct CBC *c, int round){
 //        printArr((*c).key, 16, 'x');
 
         printf("Decrypted block: \t");
-        general_decrypt(temp, (*c).keySize, (*c).key);
+        general_decrypt(temp, blockSize, (*c).keySize, (*c).key);
         printArr(temp, strlen(temp), 'x');
         printf("\n");
 
@@ -151,7 +151,7 @@ void encryptCFB(struct CFB *c, int round){
     int blockSize = (*c).blockSize;
     int pSize = (*c).pSize;
     int shiftRegSize = (*c).shiftRegSize;
-    if ((round + 1) * blockSize > pSize){
+    if (round * blockSize > pSize){
         return;
     } else {
         printf("Plaintext block: \t");
@@ -167,8 +167,8 @@ void encryptCFB(struct CFB *c, int round){
         }   //copy the shift register into a temp array
 
         unsigned char storage[shiftRegSize + 1];
-        pad_and_encrypt(temp, storage, (*c).keySize, (*c).key);
-        general_decrypt(storage, 128, (*c).key);
+        pad_and_encrypt(temp, storage, shiftRegSize, (*c).keySize, (*c).key);
+//        general_decrypt(storage, shiftRegSize, 128, (*c).key);
 
 //        dummyEncryptionFunction(temp, shiftRegSize);
         printf("Encrypted SR: \t\t");
@@ -205,7 +205,7 @@ void decryptCFB(struct CFB *c, int round){
     int pSize = (*c).pSize;
     int shiftRegSize = (*c).shiftRegSize;
 
-    if ((round + 1) * blockSize > pSize){
+    if ((round) * blockSize > pSize){
         return;
     } else {
         if (round == 0){
@@ -232,7 +232,7 @@ void decryptCFB(struct CFB *c, int round){
         }
 
         unsigned char storage[shiftRegSize + 1];
-        pad_and_encrypt(temp, storage, (*c).keySize, (*c).key);
+        pad_and_encrypt(temp, storage, shiftRegSize, (*c).keySize, (*c).key);
 //        dummyEncryptionFunction(temp, shiftRegSize);
         printf("Encrypted SR: \t\t");
 //        printArr(temp, shiftRegSize, 'x');
@@ -288,4 +288,10 @@ void printArr(unsigned char *arr, int size, char format){
     }
 
     printf("\n");
+}
+
+void readFile(unsigned char * filename, unsigned char * fileBuffer){
+    FILE *f;
+    f = fopen(filename, "r");
+    fgets(fileBuffer, 32, f);
 }

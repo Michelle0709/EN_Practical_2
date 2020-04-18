@@ -4,6 +4,7 @@
 
 #ifndef ARMANDT_ARMANDT_H
 #define ARMANDT_ARMANDT_H
+#include <stdio.h>
 
 /**
  * A structure to hold relevant info for doing cipher block chaining
@@ -56,8 +57,20 @@ void decryptCBC(struct CBC *c, int round);
  */
 void shiftBytesIn(unsigned char* shiftReg, int regSize, unsigned char* newData, int newDataSize);
 
+/**
+ * @brief Uses the cipher feedback mode to encrypt a message. Internally, this function uses the AES
+ * encryption algorithm to encrypt the IV/Shift Register
+ * @param c The CFB struct containing the plaintext and other relevant information
+ * @param round A counter for the round of encryption being executed.
+ */
 void encryptCFB(struct CFB *c, int round);
 
+/**
+ * @brief Takes a CFB struct and decrypts the message stored in its ciphertext, using the
+ * AES decryption function.
+ * @param c A pointer to the CFB structure being used.
+ * @param round The round (block) of decryption being executed.
+ */
 void decryptCFB(struct CFB *c, int round);
 
 void dummyEncryptionFunction(unsigned char* data, int size);
@@ -72,5 +85,12 @@ void dummyDecryptionFunction(unsigned char* data, int size);
  */
 void printArr(unsigned char *arr, int size, char format);
 
+
+/**
+ * @brief Accepts a filename and opens the file. The function assumes that the file is located in
+ * the root directory of the program. (Same folder as main.c)
+ * @param filename The name of the file that must be encrypted.
+ */
+void readFile(unsigned char * filename, unsigned char * fileBuffer);
 
 #endif //ARMANDT_ARMANDT_H

@@ -505,25 +505,24 @@ void test_functionality(unsigned char *input_string)
 }
 
 
-unsigned char* pad_and_encrypt(unsigned char * message, unsigned char * encrypted, int key_len, unsigned char * k){
-    unsigned char original_message[strlen(message) + 1];    //make a copy of the message (maybe this helps)
+unsigned char* pad_and_encrypt(unsigned char * message, unsigned char * encrypted, int message_len, int key_len, unsigned char * k){
+    unsigned char original_message[message_len + 1];    //make a copy of the message (maybe this helps)
     unsigned char key[key_len / 8];                       //make a copy of the key
-    int original_message_len = strlen(message);         //get the length of the message
 
     for (int a = 0; a < key_len / 8; a++){
         key[a] = k[a];
     }
 
-    for (int a = 0; a < original_message_len; a++){
+    for (int a = 0; a < message_len; a++){
         original_message[a] = message[a];
     }
-    original_message[original_message_len] = '\0';
+    original_message[message_len] = '\0';
 
     set_key_length(key_len);
 
     //now do the padding
-    int padded_message_len = original_message_len; 
-    if (original_message_len % 16 != 0){
+    int padded_message_len = message_len; 
+    if (message_len % 16 != 0){
         padded_message_len = (padded_message_len / 16 + 1) * 16;
     }
 
@@ -564,11 +563,13 @@ unsigned char* pad_and_encrypt(unsigned char * message, unsigned char * encrypte
     return encrypted_message;
 }
 
-unsigned char * general_decrypt(unsigned char * message, int key_len, unsigned char * k){
-    int padded_message_len = strlen(message);
+unsigned char * general_decrypt(unsigned char * message, int message_len, int key_len, unsigned char * k){
+    int padded_message_len = message_len;
     unsigned char temp[padded_message_len + 1];        //the encrypted message should be the length of the padded original message
     unsigned char * decrypted_message = temp;
     unsigned char message_copy[padded_message_len + 1];
+
+    set_key_length(key_len);
 
     for (int a = 0; a < padded_message_len; a++){
         message_copy[a] = message[a];

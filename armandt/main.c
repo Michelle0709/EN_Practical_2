@@ -11,9 +11,10 @@ int main() {
 //    printf("%c\n", a);
 
     int cbc_section = 0;
-    int cfb_section = 1;
+    int cfb_section = 0;
     int armandt_aes = 0;
     int michelle_aes = 0;
+    int files_test = 1;
 
     if (cbc_section == 1){
         printf("\n\n=================CBC SECTION=================\n\n");
@@ -107,7 +108,7 @@ int main() {
 //    printArr(cfb.plaintext, 16, 'c');
 
         struct CFB cfb;
-        cfb.pSize = 16;
+        cfb.pSize = 23;
         cfb.shiftRegSize = 16;
         cfb.blockSize = 8;
         cfb.keySize = 128;
@@ -123,7 +124,7 @@ int main() {
         }
 
         for (int a = 0; a < cfb.pSize; a++){
-            cfbPlainText[a] = a;
+            cfbPlainText[a] = a * 2;
             cfbShiftReg[a] = 0;
             cfbCipherText[a] = 0;
         }
@@ -147,6 +148,10 @@ int main() {
         printf("CFB encryption: \t");
         printArr(cfb.ciphertext, cfb.pSize, 'x');
         printf("\n");
+
+        for (int a = 0; a < cfb.pSize; a++){
+            cfbPlainText[a] = 1;
+        }
 
         decryptCFB(&cfb, 0);
         printf("CFB decryption: \t");
@@ -213,22 +218,22 @@ int main() {
         unsigned char testMessage1[] = "this is a test m";
         unsigned char testMessage2[] = "essage help me!!";
         unsigned char testMessage3[] = "this is a test message help me!?";
-        unsigned char storage[17];
+        unsigned char storage[33];
         printArr(testMessage1, 16, 'c');
-        newArray1 = pad_and_encrypt(testMessage1, storage, 128, myKey);
+        newArray1 = pad_and_encrypt(testMessage1, storage, 16,128, myKey);
         printArr(newArray1, 16, 'x');
         unsigned char * decrypter;
-        general_decrypt(storage, 128, myKey);
+        general_decrypt(storage, 16, 128, myKey);
         printArr(storage, strlen(storage), 'c');
 //
-        newArray2 = pad_and_encrypt(testMessage2, storage, 128, myKey);
+        newArray2 = pad_and_encrypt(testMessage2, storage, 16, 128, myKey);
         printArr(storage, 16, 'x');
-        decrypter = general_decrypt(storage, 128, myKey);
+        decrypter = general_decrypt(storage, 16, 128, myKey);
         printArr(storage, strlen(storage), 'c');
 //
-        newArray3 = pad_and_encrypt(testMessage3, storage, 128, myKey);
+        newArray3 = pad_and_encrypt(testMessage3, storage, 32, 128, myKey);
         printArr(storage, 32, 'x');
-        decrypter = general_decrypt(storage, 128, myKey);
+        decrypter = general_decrypt(storage, 32, 128, myKey);
         printArr(storage, 32, 'c');
 //    AES_decrypt(newArray, myKey);
 //    printArr(newArray1, strlen(decrypter), 'c');
@@ -354,5 +359,13 @@ int main() {
 //    test_functionality(test);
     }
 
+    if (files_test == 1){
+        unsigned char fileBuffer[32];
+        unsigned char fileName[] = "/home/armandt/Documents/EHN/EHN/prac2/armandt/ted.pdf";
+
+        readFile(fileName, fileBuffer);
+
+        printArr(fileBuffer, strlen(fileBuffer), 'c');
+    }
     return 0;
 }
