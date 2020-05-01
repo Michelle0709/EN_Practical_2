@@ -475,7 +475,7 @@ void print_hex_block(const char *string)
     printf("\n\n");
 }
 
-void test_functionality(unsigned char *input_string)
+void test_functionality(unsigned char *input_string, int key_length, unsigned char* key)
 {
     printf("\n___________________________________________________\n");
     unsigned char input[strlen(input_string)];
@@ -501,6 +501,15 @@ void test_functionality(unsigned char *input_string)
     printf("___________________________________________________\n");
     sub_bytes(input_string);
     print_hex_block(input_string);
+    printf("___________________________________________________\n");
+
+    printf("\nExpanded key\n");
+    strncpy(input_string, input, strlen(input_string));
+    printf("___________________________________________________\n");
+    unsigned char expanded_key[expanded_key_size];
+    set_key_length(key_length)
+    key_expansion(key, expanded_key);
+    print_hex(expanded_key, expanded_key_size);
     printf("___________________________________________________\n");
 }
 
