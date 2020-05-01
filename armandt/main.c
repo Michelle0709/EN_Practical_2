@@ -34,6 +34,9 @@ int main(int argc, char *argv[])
         if (strcmp(argv[a], "-e") == 0)
         {
             encrypt = true;
+            if (!((strcmp(argv[a + 1], "-cbc") == 0) || (strcmp(argv[a + 1], "-cfb") == 0))){
+                keyLength = atoi(argv[a+1]);
+            }   //if neither cbc nor cfb are used, then the keylength must still be entered.
         }
         else if (strcmp(argv[a], "-d") == 0)
         {
@@ -318,7 +321,7 @@ int main(int argc, char *argv[])
     } else {
         if (encrypt){
             set_key_length(keyLength);
-            test_functionality(c_is_garbage);
+            test_functionality(c_is_garbage, keyLength, key);
 //            pad_and_encrypt(c_is_garbage, newArray, plaintextLength, keyLength, key);
         } else {
             general_decrypt(c_is_garbage, plaintextLength, keyLength, key);

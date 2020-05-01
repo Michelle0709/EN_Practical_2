@@ -507,7 +507,7 @@ void test_functionality(unsigned char *input_string, int key_length, unsigned ch
     strncpy(input_string, input, strlen(input_string));
     printf("___________________________________________________\n");
     unsigned char expanded_key[expanded_key_size];
-    set_key_length(key_length)
+    set_key_length(key_length);
     key_expansion(key, expanded_key);
     print_hex(expanded_key, expanded_key_size);
     printf("___________________________________________________\n");
