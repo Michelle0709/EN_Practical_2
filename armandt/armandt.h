@@ -41,12 +41,16 @@ struct CFB{
  */
 void encryptCBC(struct CBC *c, int round);
 
+void iterativeEncryptCBC(struct CBC * c);
+
 /**
  * @brief Takes a CBC struct and and decrypts the data it contains using recursion.
  * @param c The CBC structure used.
  * @param round The round of decryption that is to be performed.
  */
 void decryptCBC(struct CBC *c, int round);
+
+void iterativeDecryptCBC(struct CBC * c);
 
 /**
  * @brief Acts as a shift register, shifting new data into an existing array.
@@ -64,6 +68,10 @@ void shiftBytesIn(unsigned char* shiftReg, int regSize, unsigned char* newData, 
  * @param round A counter for the round of encryption being executed.
  */
 void encryptCFB(struct CFB *c, int round);
+
+void iterativeEncryptCFB(struct CFB *c);
+
+void iterativeDecryptCFB(struct CFB *c);
 
 /**
  * @brief Takes a CFB struct and decrypts the message stored in its ciphertext, using the
@@ -93,4 +101,18 @@ void printArr(unsigned char *arr, int size, char format);
  */
 void readFile(unsigned char * filename, unsigned char * fileBuffer);
 
+/**
+ * @brief Saves the given array as a file, designated by the filename.
+ * @param filename Name of the file, including the extension.
+ * @param fileBuffer Array containing data.
+ * @param fileSize Number of elements in fileBuffer.
+ */
+void saveFile(unsigned char * filename, unsigned char * fileBuffer, int fileSize);
+
+/**
+ * @brief Returns the size of the file in bytes.
+ * @param filename The filename
+ * @return File size in bytes
+ */
+long int getFileSize(unsigned char * filename);
 #endif //ARMANDT_ARMANDT_H
